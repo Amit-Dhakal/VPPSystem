@@ -1,7 +1,7 @@
 package com.proshore.VPPSystem.dto;
-
 import lombok.Data;
 
+// Holds analytical data like total and average power capacities.
 @Data
 public class PowerCellResponse {
 

@@ -12,12 +12,15 @@ spring:
     hibernate:
       ddl-auto: update
 
+
+
+
 # /api-docs endpoint custom path
 
 #springdoc:
 #  api-docs:
 #    path: /api-docs
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
+#springdoc:
+#  swagger-ui:
+#    path: /swagger-ui.html
+#    enabled: true

@@ -41,19 +41,39 @@ public class VppController {
     }
 
 
+
+    /**
+     *
+     *  Save List of Powercell Data into database
+     *
+     * @param powerCellDTOList input list containg powercelldata
+     * @return ResponseEntity containing HTTPSTATUS created when data inserted succsefully in database
+     * Throws exception if data not saved
+     *
+     */
     @PostMapping("/save-data")
-    public ResponseEntity<?> savePowerCellData(@RequestBody @NotNull @NotEmpty List<PowerCellDTO> powerCellDTOList) {
+    public ResponseEntity<?> savePowerCellData(@RequestBody @NotNull @NotEmpty@Valid List<PowerCellDTO> powerCellDTOList) {
         try {
             vppService.savePowerCell(powerCellDTOList);
             logger.info("Power Cell saved Sucessfully :{}");
+            return new ResponseEntity<>(powerCellDTOList,HttpStatus.CREATED);
         } catch (RuntimeException runtimeException) {
             return new ResponseEntity<>("Runtime Exception occured while saving data :" + runtimeException.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>("Exception occured while saving data :" + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+
+    /**
+     *
+     *  Fetches powercell data by postcode ranges
+     *
+     * @param startRange starting postcode range of powercell data
+     * @param endRange ending postcode range of powercell data
+     * @return ResponseEntity containing by filtering data based on postcode ranges
+     * Throws exception if data not found
+     */
     @GetMapping("/fetch-data")
     public ResponseEntity<List<PowerCellDTO>> fetchPowerCellData(@RequestParam @NotBlank String startRange,@RequestParam @NotBlank String endRange) {
         try {
@@ -68,10 +88,20 @@ public class VppController {
         }
     }
 
+
+
+    /**
+    *
+     * Fetches data based on total power capacity and average capacity
+    * @param startRange starting postcode range of powercell battery
+    * @param endRange ending postcode range of powercell battery
+    * @return ResponseEntity containing powercell response with analytical data
+     * Throws exception if data not found
+    */
     @GetMapping("/powercell/analytics")
     public ResponseEntity<PowerCellResponse> getAnalyticalData(@RequestParam @NotBlank String startRange, @RequestParam @NotBlank String endRange) {
         try {
-            PowerCellResponse powerCellResponse = powerCellAnalalyticService.getStatistics(startRange, endRange);
+            PowerCellResponse powerCellResponse = powerCellAnalalyticService.getStatistics(startRange,endRange);
             logger.info("Analytical Data fetched sucessfully: { }" + powerCellResponse);
             return new ResponseEntity<PowerCellResponse>(powerCellResponse, HttpStatus.OK);
         } catch (RuntimeException e) {
@@ -81,6 +111,18 @@ public class VppController {
         }
     }
 
+
+
+    /**
+     *  Fetches data by postcode and capacity range
+     *
+     * @param startRange starting postcode range of powercell battery
+     * @param endRange ending postcode range of powercell battery
+     * @param mincapacity  starting capacity range of powercell battery
+     * @param maxcapacity ending capacity range of powercell battery
+     * @return return response by filtering data based upon postcode and capacity range values
+     * Throws exception if data notfound
+     */
     @GetMapping("/fetch-data-by-postcode-capacity")
     public ResponseEntity<List<PowerCellDTO>> fetchPowerCellDataByPostCodeRangeAndCapacityRange(@RequestParam @NotBlank String startRange, @RequestParam @NotBlank String endRange, @RequestParam @NotNull Double mincapacity, @RequestParam @NotNull Double maxcapacity) {
         try {

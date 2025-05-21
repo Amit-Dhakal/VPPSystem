@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 class VppControllerTest {
@@ -115,6 +117,36 @@ class VppControllerTest {
 
 
     }
+
+    @Test
+    void savePowerCellData_runtimeException() {
+        PowerCellDTO powerCellDTO = new PowerCellDTO();
+        powerCellDTO.setName("Test Battery");
+        powerCellDTO.setCapacity(1000);
+        powerCellDTO.setPostcode("1234");
+
+        doThrow(new RuntimeException("Database error")).when(vppService).savePowerCell(any());
+
+        ResponseEntity<?> response = vppController.savePowerCellData(List.of(powerCellDTO));
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(response.getBody().toString().contains("Database error"));
+    }
+    @Test
+    void fetchPowerCellData_runtimeException() {
+        when(vppService.findPowerCellByPostCodeRange("1000", "2000"))
+                .thenThrow(new RuntimeException("Data fetch error"));
+        ResponseEntity<List<PowerCellDTO>> response = vppController.fetchPowerCellData("1000", "2000");
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test
+    void fetchPowerCellDataByPostCodeRangeAndCapacityRange_runtimeException(){
+        when(vppService.findByPostCodeAndCapacityRange("1000","3000",5000.0,7000.0)).thenThrow(new RuntimeException("Data fetch error"));
+        ResponseEntity<List<PowerCellDTO>> response=vppController.fetchPowerCellDataByPostCodeRangeAndCapacityRange("1000","3000",5000.0,7000.0);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR,response.getStatusCode());
+    }
+
 
 
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// Maps the PowerCell entity to the POWER_CELL database table
 @Entity
 @Table(name = "POWER_CELL")
 @Data

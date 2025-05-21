@@ -61,7 +61,7 @@ public static void databaseProperties(DynamicPropertyRegistry registry){
        vppRepository.save(powerCell2);
        List<String> expectedPostCodes=List.of("6000","8000");
 //        Mockito.when(vppRepository.findByPostcodeBetween(Integer.parseInt(startRange),Integer.parseInt(endRange))).thenReturn(mockResult);
-        List<PowerCell> actualResult=vppRepository.findByPostcodeBetween(Integer.parseInt(startRange),Integer.parseInt(endRange));
+        List<PowerCell> actualResult=vppRepository.findByPostcodeBetweenRange(Integer.parseInt(startRange),Integer.parseInt(endRange));
         List<String> actualPostCodes=actualResult.stream().map(PowerCell::getPostcode).collect(Collectors.toList());
         assertEquals(expectedPostCodes,actualPostCodes);
     }

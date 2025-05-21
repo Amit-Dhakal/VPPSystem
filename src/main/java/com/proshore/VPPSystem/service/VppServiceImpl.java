@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class VppServiceImpl implements VppService {
     private VppRepository vppRepository;
     private Converter converter;
-    PowerCell powerCell = new PowerCell();
     private static final Integer THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
     ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
@@ -32,27 +31,37 @@ public class VppServiceImpl implements VppService {
         this.converter = converter;
     }
 
+    /**
+     *
+     * Saves a list of PowerCellDTO objects into the database concurrently using a thread pool.
+     * The method waits for all threads to complete before returning. If any exception occurs
+     * @param powerCellDTOList is the list of powercelldto objects to be saved
+     * Throws RuntimeException if any exception occurs during execution
+     */
+
     @Override
     public void savePowerCell(List<PowerCellDTO> powerCellDTOList) {
-
         try {
+
+            //List to track any save task running in parallel
             List<Future<?>> futuresList = new ArrayList<>();
             for (PowerCellDTO powerCellDTO : powerCellDTOList) {
                 futuresList.add(executorService.submit(() -> {
-                    powerCell = converter.dtoToEntityConverter(powerCellDTO);
+                    PowerCell powerCell = converter.dtoToEntityConverter(powerCellDTO);
                     vppRepository.save(powerCell);
-                    logger.info("Data Saved {} Successfully with ID:" + powerCell.getId());
+                    logger.info("Data Saved Successfully with ID {}:" + powerCell.getId());
                 }));
             }
 
+            // Wait for all submitted saved tasks to complete before proceeding
             for (Future<?> f : futuresList) {
                 f.get();
-                logger.info("Currently Running Thread {} :" + Thread.currentThread().getName());
+                logger.info("Currently Running Threads {} :" + Thread.currentThread().getName());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            executorService.shutdown();
+          //  executorService.shutdown();
         }
     }
 
@@ -74,18 +83,15 @@ public class VppServiceImpl implements VppService {
 
     @Override
     public List<PowerCellDTO> findByPostCodeAndCapacityRange(String startRange, String endRange, double mincapacity, double maxcapacity) {
-
         try {
             Integer startRangeData = Integer.parseInt(startRange);
             Integer endRangeData = Integer.parseInt(endRange);
             List<PowerCell> powerCellList = vppRepository.findByPostCodeAndCapacityRange(startRangeData, endRangeData, mincapacity, maxcapacity);
             List<PowerCellDTO> powerCellDTOList = powerCellList.stream().map(converter::entityToDTOConverter).collect(Collectors.toList());
             return powerCellDTOList;
-
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid postcode range: startRange and endRange must be numeric.",e);
         }
-
         catch (Exception e) {
             throw new RuntimeException("Runtime Exception has occured ::"+e);
         }

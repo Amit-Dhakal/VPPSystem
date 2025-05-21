@@ -1,5 +1,9 @@
 package com.proshore.VPPSystem.dto;
 
+/**
+ * Contains Data Transfer Objects
+ * Used to transfer Data between Layers
+ */
 public class PowerCellDTO {
     private String name;
     private String postcode;

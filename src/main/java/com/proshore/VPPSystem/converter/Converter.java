@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Converter {
 
+    // This method implements conversion of entity data to DTO data
     public PowerCellDTO entityToDTOConverter(PowerCell powerCell){
         PowerCellDTO powerCellDTO=new PowerCellDTO();
         powerCellDTO.setCapacity(powerCell.getCapacity());
@@ -15,6 +16,7 @@ public class Converter {
         return powerCellDTO;
     }
 
+    //This method implements conversion of DTO data to entity data
     public PowerCell dtoToEntityConverter(PowerCellDTO powerCellDTO){
         PowerCell powerCell=new PowerCell();
         powerCell.setCapacity(powerCellDTO.getCapacity());
